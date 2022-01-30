@@ -1,3 +1,5 @@
+.gen
+
 .idea
 .vscode
 .eclipse
@@ -18,8 +20,6 @@ declarations
 declarations/*
 declarations/**
 
-coverage
-
 .terraform/*
 
 *.tfstate
@@ -28,10 +28,6 @@ coverage
 cdktf.out
 cdktf.out/*
 cdktf.out/**
-
-*.js
-**/*.js
-**/*.d.ts
 
 .DS_Store
 
