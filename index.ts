@@ -5,12 +5,6 @@ import { Service } from "./src/client";
 import { Parameter } from "@cloud-technology/parameter";
 import { IO } from "@cloud-technology/input-buffer";
 
-//const secrets = await Service.listSecrets( "name", [ "Capstone" ] );
-
-//console.log( secrets );
-
-export default {};
-
 const $ = new Command()
     .name( "secrets-manager" )
     .version( "0.0.0", "-v, --version", "Show Version, Semantic" )
@@ -92,3 +86,5 @@ $.command( "create" )
     } );
 
 await $.parse( process.argv );
+
+export default {};
