@@ -1,0 +1,76 @@
+{
+    "compilerOptions": {
+        "allowJs": true,
+        "alwaysStrict": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "emitBOM": true,
+        "incremental": true,
+        "inlineSourceMap": false,
+        "noEmitOnError": true,
+        "listEmittedFiles": false,
+        "listFilesOnly": false,
+        "noFallthroughCasesInSwitch": true,
+        "declaration": true,
+        "emitDeclarationOnly": false,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "noUnusedLocals": false,
+        "noUnusedParameters": true,
+        "resolveJsonModule": true,
+        "declarationMap": false,
+        "strictFunctionTypes": true,
+        "baseUrl": ".",
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+        "exactOptionalPropertyTypes": true,
+        "preserveWatchOutput": false,
+        "forceConsistentCasingInFileNames": true,
+        "assumeChangesOnlyAffectDirectDependencies": false,
+        "lib": [
+            "ES2018",
+            "ES2019",
+            "ES2020",
+            "ESNext"
+        ],
+        "module": "ESNext",
+        "moduleResolution": "Node",
+        "preserveConstEnums": true,
+        "pretty": true,
+        "removeComments": false,
+        "skipLibCheck": true,
+        "strict": true,
+        "target": "ESNext",
+        "composite": true,
+        "diagnostics": true,
+        "importHelpers": true,
+        "noEmitHelpers": false,
+        "isolatedModules": true,
+        "disableSizeLimit": true,
+        "extendedDiagnostics": false,
+        "downlevelIteration": true,
+        "useDefineForClassFields": true,
+        "noErrorTruncation": true,
+        "checkJs": true,
+        "preserveSymlinks": true,
+        "allowUnreachableCode": true,
+        "strictBindCallApply": true,
+        "strictNullChecks": true,
+        "traceResolution": false,
+        "plugins": [
+            {
+                "name": "typescript-eslint-language-service"
+            }
+        ]
+    },
+    "exclude": [
+        "**/*.d.ts",
+        "src/**/*.js"
+    ],
+    "include": [
+        "index.ts",
+        "src/**/*.ts",
+        "unit-testing/**/*.ts"
+    ]
+}

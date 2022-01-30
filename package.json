@@ -1,0 +1,92 @@
+{
+    "name": "@cloud-technology/secrets-manager",
+    "private": false,
+    "version": "0.4.125",
+    "type": "module",
+    "main": "index.js",
+    "description": "AWS Secrets Manager CLI Tool & Interface",
+    "types": "index.d.ts",
+    "repository": {
+        "type": "git",
+        "directory": ".",
+        "url": "https://github.com/cloud-hybrid/parameter.git"
+    },
+    "license": "BSD-2-Clause",
+    "author": "Jacob B. Sanders",
+    "scripts": {
+        "test": "node unit-testing",
+        "compile": "tsc --watch",
+        "start": "node --es-module-specifier-resolution node .",
+        "upload": "npm publish --access public",
+        "reinstall": "npm update && npm install --global --force",
+        "prepublishOnly": "npm install --silent && tsc && npm run test"
+    },
+    "config": {
+        "organization": "cloud-technology"
+    },
+    "dependencies": {
+        "@aws-sdk/client-secrets-manager": "^3.49.0",
+        "@aws-sdk/credential-providers": "^3.49.0",
+        "@cloud-technology/parameter": "^0.5.127",
+        "@cloud-technology/input-buffer": "^0.2.14",
+        "commander": "^9.0.0",
+        "inquirer": "^8.2.0"
+    },
+    "devDependencies": {
+        "@aws-sdk/types": "^3.49.0",
+        "@jest/globals": "latest",
+        "@types/inquirer": "^8.2.0",
+        "@types/jest": "latest",
+        "@types/node": "latest",
+        "@typescript-eslint/eslint-plugin": "latest",
+        "@typescript-eslint/experimental-utils": "latest",
+        "@typescript-eslint/parser": "latest",
+        "@typescript-eslint/scope-manager": "latest",
+        "@typescript-eslint/type-utils": "latest",
+        "@typescript-eslint/typescript-estree": "latest",
+        "eslint": "latest",
+        "jest": "latest",
+        "ts-jest": "latest",
+        "ts-node": "latest",
+        "tslib": "latest",
+        "typescript": "latest",
+        "typescript-eslint-language-service": "latest"
+    },
+    "eslintConfig": {
+        "parser": "@typescript-eslint/parser",
+        "plugins": [
+            "@typescript-eslint"
+        ],
+        "extends": [
+            "eslint:recommended",
+            "plugin:@typescript-eslint/eslint-recommended",
+            "plugin:@typescript-eslint/recommended"
+        ],
+        "rules": {
+            "no-case-declarations": 0,
+            "@typescript-eslint/no-explicit-any": 0,
+            "@typescript-eslint/explicit-function-return-type": 0,
+            "@typescript-eslint/no-use-before-define": 0,
+            "@typescript-eslint/no-empty-interface": 0,
+            "@typescript-eslint/explicit-module-boundary-types": 0,
+            "@typescript-eslint/no-empty-function": 0,
+            "@typescript-eslint/no-unused-vars": 0,
+            "@typescript-eslint/no-inferrable-types": 0,
+            "@typescript-eslint/ban-types": 0,
+            "@typescript-eslint/ban-ts-comment": 0,
+            "no-sequences": "error"
+        },
+        "ignorePatterns": [
+            "coverage",
+            "declarations",
+            "distribution",
+            "node_modules"
+        ]
+    },
+    "exports": {
+        ".": "./index.js"
+    },
+    "bin": {
+        "parameter": "unit-testing/index.js"
+    }
+}
