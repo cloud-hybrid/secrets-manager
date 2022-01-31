@@ -147,7 +147,7 @@ class Client extends Credential {
      * @returns {Promise<SecretsManagerClient>}
      */
 
-    async instantiate() {
+    private async instantiate() {
         const credentials = await this.settings();
 
         this.id = credentials.accessKeyId;
@@ -161,7 +161,13 @@ class Client extends Credential {
         };
 
         this.service = new SecretsManagerClient( { ... this.credentials }  );
-        return this.service;
+        return this;
+    }
+    
+    private static async initialize(profile: string) {
+        const client = new Client(profile);
+        
+        return await client.instantiate();
     }
 
     /***
@@ -172,8 +178,7 @@ class Client extends Credential {
      * @returns {Promise<Secret>}
      */
     static async getSecret(name: string, version: string = "AWSCURRENT", profile: string = "default"): Promise<Secret> {
-        const client = new Client(profile);
-        await client.instantiate();
+        const client = await Client.initialize(profile);
 
         const input: Inputs["get"] = {
             SecretId: name,
@@ -192,8 +197,7 @@ class Client extends Credential {
      * @returns {Promise<Variadic[]>}
      */
     static async listSecrets(profile: string = "default"): Promise<Variadic[]> {
-        const client = new Client(profile);
-        await client.instantiate();
+        const client = await Client.initialize(profile);
 
         const secrets: Variadic[] = [];
         const input: Inputs["list"] = {
@@ -233,8 +237,7 @@ class Client extends Credential {
      * @returns {Promise<Variadic[]>}
      */
     static async searchSecrets(filter: Filters, value?: string | string[], profile: string = "default"): Promise<Variadic[]> {
-        const client = new Client(profile);
-        await client.instantiate();
+        const client = await Client.initialize(profile);
 
         const secrets: Variadic[] = [];
         const input: Inputs["list"] = (value) ? {
@@ -289,8 +292,7 @@ class Client extends Credential {
      * @returns {Promise<Secret>}
      */
     static async createSecret(parameter: Parameter, description: string, secret: string, overwrite: boolean = false, profile: string = "default"): Promise<Secret> {
-        const client = new Client(profile);
-        await client.instantiate();
+        const client = await Client.initialize(profile);
 
         const organization = parameter.organization;
         const environment = parameter.environment;
