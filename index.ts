@@ -8,14 +8,14 @@ import { IO } from "@cloud-technology/input-buffer";
 const $ = new Command()
     .name( "secrets-manager" )
     .version( "0.0.0", "-v, --version", "Show Version, Semantic" )
-    .helpOption( "-h, --help", "Display Help Information" );
+    .helpOption( "-h, --help", "Display Help Information" )
+    .requiredOption("-p, --profile <account>", "AWS Account Alias - Aliases Found in ~/.aws/credentials", "default");
 
 $.command( "list" )
     .description( "List Account Secrets - Doesn't Include Secret Value(s)" )
-    .requiredOption( "-n, --name <filter>", "Filter Search Results via Name" )
     .option( "-v, --verbose", "Include Verbose Attribute(s)", false )
     .action( (parameters: { name: string, verbose: boolean }) => {
-        Service.listSecrets( "name", [ parameters?.name ] ).then( ($) => {
+        Service.listSecrets().then( ($) => {
             const data = $.map( (secret) => {
                 return (parameters.verbose) ? secret : secret.compact();
             } );
@@ -28,11 +28,12 @@ $.command( "list" )
 
 $.command( "search" )
     .description( "Choose a Secret from an Optionally Filtered List" )
-    .option( "-n, --name <filter>", "Filter Search Results via Name" )
+    .helpOption( "-h, --help", "Display Help Information" )
+    .requiredOption( "-n, --name <filter>", "Filter Search Results via Name" )
     .option( "-s, --stage <version>", "Filter Specific Instance(s) of Secret to its Version", "AWSCURRENT" )
     .action( (parameters: { name: string, stage: string}) => {
         const module = Prompt.createPromptModule();
-        Service.listSecrets( "name", [ parameters?.name ] ).then( async ($) => {
+        Service.searchSecrets( "name", [ parameters?.name ?? undefined ] ).then( async ($) => {
             const query = $.map( (secret) => {
                 return secret.compact();
             } );
@@ -70,6 +71,7 @@ $.command( "search" )
 
 $.command( "create" )
     .description( "Create a New Secret" )
+    .helpOption( "-h, --help", "Display Help Information" )
     /// .requiredOption("-n, --name <value>", "The Secret's Name - Ex) IBM/Production/Audit-Service/Watson-AI/Credentials")
     /// .requiredOption("-d, --description <value>", "Resource Description - Ex) Login Credentials for IBM Auditing Service")
     /// .requiredOption("-s, --secret <value>", "Target Secret Value - File Location or Buffer")
@@ -84,6 +86,10 @@ $.command( "create" )
             console.log($);
         });
     } );
+
+$.command("help").description( "Display Help Information" ).action(() => {
+    $.help();
+});
 
 await $.parse( process.argv );
 
