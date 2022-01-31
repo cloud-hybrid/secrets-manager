@@ -1,7 +1,7 @@
 {
     "name": "@cloud-technology/secrets-manager",
     "private": false,
-    "version": "0.4.125",
+    "version": "0.4.126",
     "type": "module",
     "main": "index.js",
     "description": "AWS Secrets Manager CLI Tool & Interface",
@@ -9,7 +9,7 @@
     "repository": {
         "type": "git",
         "directory": ".",
-        "url": "https://github.com/cloud-hybrid/parameter.git"
+        "url": "https://github.com/cloud-hybrid/secrets-manager.git"
     },
     "license": "BSD-2-Clause",
     "author": "Jacob B. Sanders",
@@ -87,6 +87,6 @@
         ".": "./index.js"
     },
     "bin": {
-        "parameter": "unit-testing/index.js"
+        "secrets-manager": "index.js"
     }
 }

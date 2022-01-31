@@ -13,8 +13,8 @@ import { CredentialProvider } from "@aws-sdk/types";
 
 import { Parameter } from "@cloud-technology/parameter";
 
-import { List, Variadic } from "./secret";
-import { Secret } from "./output";
+import { List, Variadic } from "./secret.js";
+import { Secret } from "./output.js";
 
 
 /***
@@ -53,7 +53,7 @@ class Credential {
     user = OS.userInfo();
 
     /*** `AWS_PROFILE` environment variable or a default of `default`. */
-    profile = "default";
+    profile: string;
 
     /*** AWS_ACCESS_KEY_ID */
     id?: string;
@@ -75,9 +75,11 @@ class Credential {
      *
      */
 
-    constructor(profile = null) {
+    constructor(profile: string) {
+        this.profile = profile;
+
         this.settings = fromIni( {
-            profile: profile ?? this.profile
+            profile: profile
         } );
     }
 }
@@ -97,6 +99,7 @@ class Credential {
 interface INI {
     accessKeyId: string;
     secretAccessKey: string;
+    profile: string;
 }
 
 interface Inputs {
@@ -120,7 +123,9 @@ class Client extends Credential {
     /*** AWS S3 API Client */
     service?: SecretsManagerClient;
 
-    private credentials?: INI;
+    credentials?: INI;
+
+    profile: string;
 
     commands = {
         get: GetSecretValueCommand,
@@ -130,8 +135,10 @@ class Client extends Credential {
 
     /*** Given AWS-V3 Change(s), `await Client.instantiate()` must be called after constructor Instantiation */
 
-    constructor() {
-        super();
+    constructor(profile: string = "default") {
+        super(profile);
+
+        this.profile = profile;
     }
 
     /***
@@ -145,12 +152,15 @@ class Client extends Credential {
 
         this.id = credentials.accessKeyId;
         this.key = credentials.secretAccessKey;
+        this.profile = this.profile;
 
         this.credentials = {
-            accessKeyId: this.id, secretAccessKey: this.key
+            profile: this.profile,
+            accessKeyId: this.id,
+            secretAccessKey: this.key
         };
 
-        this.service = new SecretsManagerClient( { ... this.credentials } );
+        this.service = new SecretsManagerClient( { ... this.credentials }  );
         return this.service;
     }
 
@@ -161,14 +171,18 @@ class Client extends Credential {
      * @param {string} version
      * @returns {Promise<Secret>}
      */
-    async getSecret(name: string, version: string = "AWSCURRENT"): Promise<Secret> {
+    static async getSecret(name: string, version: string = "AWSCURRENT", profile: string = "default"): Promise<Secret> {
+        const client = new Client(profile);
+        await client.instantiate();
+
         const input: Inputs["get"] = {
             SecretId: name,
             VersionStage: version
         };
 
-        const command = new this.commands.get(input);
-        const secret = await this.service?.send(command);
+        const command = new client.commands.get(input);
+        const secret = await client.service?.send(command);
+
         return new Secret(secret);
     }
 
@@ -177,14 +191,17 @@ class Client extends Credential {
      *
      * @returns {Promise<Variadic[]>}
      */
-    async listSecrets(): Promise<Variadic[]> {
+    static async listSecrets(profile: string = "default"): Promise<Variadic[]> {
+        const client = new Client(profile);
+        await client.instantiate();
+
         const secrets: Variadic[] = [];
         const input: Inputs["list"] = {
             MaxResults: Infinity
         };
 
-        const command = new this.commands.list(input);
-        const response = await this.service?.send(command);
+        const command = new client.commands.list(input);
+        const response = await client.service?.send(command);
 
         let page = new List(response);
         secrets.push(... page);
@@ -195,8 +212,8 @@ class Client extends Credential {
                 NextToken: page.token
             };
 
-            const command = new this.commands.list(input);
-            const response = await this.service?.send(command);
+            const command = new client.commands.list(input);
+            const response = await client.service?.send(command);
 
             page = new List(response);
             secrets.push(... page);
@@ -215,7 +232,10 @@ class Client extends Credential {
      * @param {string | string[]} value
      * @returns {Promise<Variadic[]>}
      */
-    async searchSecrets(filter: Filters, value?: string | string[]): Promise<Variadic[]> {
+    static async searchSecrets(filter: Filters, value?: string | string[], profile: string = "default"): Promise<Variadic[]> {
+        const client = new Client(profile);
+        await client.instantiate();
+
         const secrets: Variadic[] = [];
         const input: Inputs["list"] = (value) ? {
             MaxResults: Infinity,
@@ -228,8 +248,8 @@ class Client extends Credential {
             MaxResults: Infinity
         };
 
-        const command = new this.commands.list(input);
-        const response = await this.service?.send(command);
+        const command = new client.commands.list(input);
+        const response = await client.service?.send(command);
 
         let page = new List(response);
         secrets.push(... page);
@@ -246,8 +266,8 @@ class Client extends Credential {
                 MaxResults: Infinity, NextToken: page.token
             };
 
-            const command = new this.commands.list(input);
-            const response = await this.service?.send(command);
+            const command = new client.commands.list(input);
+            const response = await client.service?.send(command);
 
             page = new List(response);
             secrets.push(... page);
@@ -265,9 +285,13 @@ class Client extends Credential {
      * @param {string} description
      * @param {string} secret
      * @param {boolean} overwrite
+     *
      * @returns {Promise<Secret>}
      */
-    async createSecret(parameter: Parameter, description: string, secret: string, overwrite: boolean = false): Promise<Secret> {
+    static async createSecret(parameter: Parameter, description: string, secret: string, overwrite: boolean = false, profile: string = "default"): Promise<Secret> {
+        const client = new Client(profile);
+        await client.instantiate();
+
         const organization = parameter.organization;
         const environment = parameter.environment;
         const application = parameter.application;
@@ -304,8 +328,9 @@ class Client extends Credential {
             ]
         };
 
-        const command = new this.commands.create(input);
-        const response = await this.service?.send(command);
+        const command = new client.commands.create(input);
+        const response = await client.service?.send(command);
+
         return new Secret(response);
     }
 
@@ -318,14 +343,11 @@ class Client extends Credential {
      *
      * @returns {Promise<Secret>}
      */
-    async forceCreateSecret(parameter: Parameter, description: string, secret: string) {
-        return await this.createSecret(parameter, description, secret, true);
+    static async forceCreateSecret(parameter: Parameter, description: string, secret: string, profile: string = "default") {
+        return await Client.createSecret(parameter, description, secret, true, profile);
     }
 }
 
-const Service = new Client();
-await Service.instantiate();
+export { Client };
 
-export { Service };
-
-export default Service;
+export default Client;

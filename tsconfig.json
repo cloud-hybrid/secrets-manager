@@ -66,11 +66,11 @@
     },
     "exclude": [
         "**/*.d.ts",
-        "src/**/*.js"
+        "**/*.js"
     ],
     "include": [
         "index.ts",
-        "src/**/*.ts",
+        "**/*.ts",
         "unit-testing/**/*.ts"
     ]
 }

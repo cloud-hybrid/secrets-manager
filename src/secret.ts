@@ -108,4 +108,4 @@ class List extends Array {
 }
 
 export { Secret, List, Variadic };
-export default { Secret, List };
+export default { Secret, List, Variadic };
