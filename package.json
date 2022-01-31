@@ -19,7 +19,7 @@
         "start": "node --es-module-specifier-resolution node .",
         "upload": "npm publish --access public",
         "reinstall": "npm update && npm install --global --force",
-        "prepublishOnly": "npm install --silent && tsc && npm run test"
+        "prepublishOnly": "npm install --silent && tsc"
     },
     "config": {
         "organization": "cloud-technology"
