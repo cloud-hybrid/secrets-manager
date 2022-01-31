@@ -1,136 +1,29 @@
-import OS from "os";
-
-import {
-    SecretsManagerClient,
-    CreateSecretCommand, CreateSecretCommandInput,
-    GetSecretValueCommand, GetSecretValueCommandInput,
-    ListSecretsCommand, ListSecretsCommandInput
-} from "@aws-sdk/client-secrets-manager";
-
-import { fromIni } from "@aws-sdk/credential-providers";
-
-import { CredentialProvider } from "@aws-sdk/types";
-
 import { Parameter } from "@cloud-technology/parameter";
 
+import { Credential } from "./credential.js";
 import { List, Variadic } from "./secret.js";
 import { Secret } from "./output.js";
 
+import { AWS } from "./aws.js";
 
-/***
- * Client Credentials
- * ---
- *
- * Creates a credential provider function that reads from a shared credentials file at ~/.aws/credentials and a shared
- * configuration file at ~/.aws/config.
- *
- * Both files are expected to be INI formatted with section names corresponding to
- * profiles.
- *
- * Sections in the credentials file are treated as profile names, whereas profile sections in the config file
- * must have the format of[profile profile-name], except for the default profile.
- *
- * @example
- * const Credentials = new Client();
- * await Credentials.initialize();
- *
- * console.log(Credentials);
- *
- */
-
-class Credential {
-    /***
-     * Returns information about the currently effective user. On POSIX platforms, this is typically a subset of the
-     * password file. The returned object includes the username, uid, gid, shell, and homedir. On Windows, the uid
-     * and gid fields are -1, and shell is null. The value of homedir returned by os.userInfo() is provided by the
-     * operating system. This differs from the result of os.homedir(), which queries environment variables for the home
-     * directory before falling back to the operating system response.
-     *
-     * Throws a SystemError if a user has no username or homedir.
-     *
-     */
-
-    user = OS.userInfo();
-
-    /*** `AWS_PROFILE` environment variable or a default of `default`. */
-    profile: string;
-
-    /*** AWS_ACCESS_KEY_ID */
-    id?: string;
-
-    /*** AWS_SECRET_ACCESS_KEY */
-    key?: string;
-
-    /***
-     * A function that, when invoked, returns a promise that will be fulfilled with a value of type Credential
-     *
-     * @type {import("@aws-sdk/types").CredentialProvider}
-     * */
-
-    settings: CredentialProvider;
-
-    /***
-     *
-     * @param profile {string} Defaults to `default`
-     *
-     */
-
-    constructor(profile: string) {
-        this.profile = profile;
-
-        this.settings = fromIni( {
-            profile: profile
-        } );
-    }
-}
+import type { Types } from "./aws.js";
 
 /***
  * API Client
- * ---
- *
- * @example
- * const Service = new Client();
- * await Service.instantiate();
- *
- * @example
- * const API = await (new Client()).instantiate();
  */
-
-interface INI {
-    accessKeyId: string;
-    secretAccessKey: string;
-    profile: string;
-}
-
-interface Inputs {
-    get: GetSecretValueCommandInput;
-    list: ListSecretsCommandInput;
-    create: CreateSecretCommandInput;
-}
-
-interface Query {
-    description: string;
-    name: string;
-    "tag-key": string;
-    "tag-value": string;
-    "primary-region": string;
-    all: any;
-}
-
-type Filters = keyof Query;
 
 class Client extends Credential {
     /*** AWS S3 API Client */
-    service?: SecretsManagerClient;
+    service?: Types["Client"];
 
-    credentials?: INI;
+    credentials?: Types["INI"];
 
     profile: string;
 
     commands = {
-        get: GetSecretValueCommand,
-        create: CreateSecretCommand,
-        list: ListSecretsCommand
+        get: AWS.Get,
+        create: AWS.Create,
+        list: AWS.List
     };
 
     /*** Given AWS-V3 Change(s), `await Client.instantiate()` must be called after constructor Instantiation */
@@ -144,7 +37,7 @@ class Client extends Credential {
     /***
      * Populate the instance `$.service`, and return a callable, functional S3 API Client
      *
-     * @returns {Promise<SecretsManagerClient>}
+     * @returns {Promise<Types.Client>}
      */
 
     private async instantiate() {
@@ -159,7 +52,8 @@ class Client extends Credential {
             secretAccessKey: this.key
         };
 
-        this.service = new SecretsManagerClient( { ... this.credentials }  );
+        this.service = new AWS.Client( { ... this.credentials }  );
+
         return this;
     }
     
@@ -179,7 +73,7 @@ class Client extends Credential {
     static async getSecret(name: string, version: string = "AWSCURRENT", profile: string = "default"): Promise<Secret> {
         const client = await Client.initialize(profile);
 
-        const input: Inputs["get"] = {
+        const input: Types["Get"] = {
             SecretId: name,
             VersionStage: version
         };
@@ -199,7 +93,7 @@ class Client extends Credential {
         const client = await Client.initialize(profile);
 
         const secrets: Variadic[] = [];
-        const input: Inputs["list"] = {
+        const input: Types["List"] = {
             MaxResults: Infinity
         };
 
@@ -210,7 +104,7 @@ class Client extends Credential {
         secrets.push(... page);
 
         while (page.token) {
-            const input: Inputs["list"] = {
+            const input: Types["List"] = {
                 MaxResults: Infinity,
                 NextToken: page.token
             };
@@ -239,7 +133,7 @@ class Client extends Credential {
         const client = await Client.initialize(profile);
 
         const secrets: Variadic[] = [];
-        const input: Inputs["list"] = (value) ? {
+        const input: Types["List"] = (value) ? {
             MaxResults: Infinity,
             Filters: [
                 {
@@ -257,7 +151,7 @@ class Client extends Credential {
         secrets.push(... page);
 
         while (page.token) {
-            const input: Inputs["list"] = (value) ? {
+            const input: Types["List"] = (value) ? {
                 MaxResults: Infinity,
                 Filters: [
                     {
@@ -300,7 +194,7 @@ class Client extends Credential {
 
         const identifier = parameter.identifier;
 
-        const input: Inputs["create"] = {
+        const input: Types["Create"] = {
             Name: parameter.string("Directory"),
             Description: description,
             ForceOverwriteReplicaSecret: overwrite,
@@ -348,6 +242,17 @@ class Client extends Credential {
         return await Client.createSecret(parameter, description, secret, true, profile);
     }
 }
+
+interface Query {
+    description: string;
+    name: string;
+    "tag-key": string;
+    "tag-value": string;
+    "primary-region": string;
+    all: any;
+}
+
+type Filters = keyof Query;
 
 export { Client };
 

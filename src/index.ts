@@ -61,7 +61,7 @@ $.command( "search" )
                 choices: options,
                 message: "Select a Secret" + ":",
                 askAnswered: true,
-                pageSize: 20,
+                pageSize: 10,
                 name: "secret",
                 loop: false
             } );
@@ -81,15 +81,10 @@ $.command( "create" )
     .option("-n, --name <value>", "The Secret's Name - Ex) IBM/Production/Audit-Service/Watson-AI/Credentials")
     .option("-d, --description <value>", "Usage or Contextual Description")
     .option("-s, --secret <value>", "Target Secret Value - File System Path")
-
     .option("-l, --local", "Open File Path from Current Working Directory", false)
     .option("-o, --overwrite", "Force Creation of Secret - Overwrites Existing Secret(s)", false)
     .requiredOption("-p, --profile <account>", "AWS Account Alias - Aliases Found in ~/.aws/credentials", "default")
     .action( (parameter: {name: string, description: string, secret: string, local: boolean, overwrite: boolean, profile: string}) => {
-        //        const name = parameter.name;
-        //        const input = Parameter.create(name, "Identifier", true);
-        //        console.log(input);
-
         const module = Prompt.createPromptModule();
 
         const Name = async () => {
@@ -203,4 +198,8 @@ $.command("help").description( "Display Help Information" ).action(() => {
     $.help();
 });
 
-export default await $.parse( process.argv );
+const Parser = $;
+
+export { Parser };
+
+export default $.parse( process.argv );

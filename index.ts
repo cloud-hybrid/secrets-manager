@@ -4,4 +4,4 @@ const CLI = async () => await import("./src/index.js");
 
 export { CLI };
 
-export default await import("./src/index.js");
+export default await CLI();
