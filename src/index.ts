@@ -203,8 +203,4 @@ $.command("help").description( "Display Help Information" ).action(() => {
     $.help();
 });
 
-const Parser = $;
-
-export { Parser };
-
 export default await $.parse( process.argv );

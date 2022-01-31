@@ -152,7 +152,6 @@ class Client extends Credential {
 
         this.id = credentials.accessKeyId;
         this.key = credentials.secretAccessKey;
-        this.profile = this.profile;
 
         this.credentials = {
             profile: this.profile,
