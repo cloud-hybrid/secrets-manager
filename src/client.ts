@@ -173,22 +173,14 @@ class Client extends Credential {
     }
 
     /***
+     * List all AWS Account Secret(s)
      *
-     * Name Filter - Matches the beginning of secret names; case-sensitive
-     *
-     * @param {Filters} filter
-     * @param {string | string[]} value
      * @returns {Promise<Variadic[]>}
      */
-    async listSecrets(filter: Filters, value: string | string[]): Promise<Variadic[]> {
+    async listSecrets(): Promise<Variadic[]> {
         const secrets: Variadic[] = [];
         const input: Inputs["list"] = {
-            MaxResults: Infinity,
-            Filters: [
-                {
-                    Key: filter, Values: (typeof value === "object") ? value : [value]
-                }
-            ]
+            MaxResults: Infinity
         };
 
         const command = new this.commands.list(input);
@@ -200,11 +192,58 @@ class Client extends Credential {
         while (page.token) {
             const input: Inputs["list"] = {
                 MaxResults: Infinity,
+                NextToken: page.token
+            };
+
+            const command = new this.commands.list(input);
+            const response = await this.service?.send(command);
+
+            page = new List(response);
+            secrets.push(... page);
+
+            if (!page.token) break;
+        }
+
+        return secrets;
+    }
+
+    /***
+     *
+     * Name Filter - Matches the beginning of secret names; case-sensitive
+     *
+     * @param {Filters} filter
+     * @param {string | string[]} value
+     * @returns {Promise<Variadic[]>}
+     */
+    async searchSecrets(filter: Filters, value?: string | string[]): Promise<Variadic[]> {
+        const secrets: Variadic[] = [];
+        const input: Inputs["list"] = (value) ? {
+            MaxResults: Infinity,
+            Filters: [
+                {
+                    Key: filter, Values: (typeof value === "object") ? value : [value]
+                }
+            ]
+        } : {
+            MaxResults: Infinity
+        };
+
+        const command = new this.commands.list(input);
+        const response = await this.service?.send(command);
+
+        let page = new List(response);
+        secrets.push(... page);
+
+        while (page.token) {
+            const input: Inputs["list"] = (value) ? {
+                MaxResults: Infinity,
                 Filters: [
                     {
                         Key: filter, Values: (typeof value === "object") ? value : [value]
                     }
                 ], NextToken: page.token
+            } : {
+                MaxResults: Infinity, NextToken: page.token
             };
 
             const command = new this.commands.list(input);
