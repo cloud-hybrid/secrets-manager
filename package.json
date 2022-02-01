@@ -1,7 +1,7 @@
 {
     "name": "@cloud-technology/secrets-manager",
     "private": false,
-    "version": "0.4.127",
+    "version": "0.4.132",
     "type": "module",
     "main": "index.js",
     "description": "AWS Secrets Manager CLI Tool & Interface",
@@ -14,7 +14,6 @@
     "license": "BSD-2-Clause",
     "author": "Jacob B. Sanders",
     "scripts": {
-        "test": "node unit-testing",
         "compile": "tsc --watch",
         "preinstall": "chmod a+x ./index.js || true",
         "install": "npm link",
@@ -22,9 +21,6 @@
         "upload": "npm publish --access public",
         "reinstall": "npm update && npm install --global --force",
         "prepublishOnly": "npm install --silent && tsc"
-    },
-    "config": {
-        "organization": "cloud-technology"
     },
     "dependencies": {
         "@aws-sdk/client-secrets-manager": "^3.49.0",
@@ -34,25 +30,15 @@
         "inquirer": "^8.2.0"
     },
     "devDependencies": {
-        "@cloud-technology/secrets-manager": ".",
-        "@aws-sdk/types": "^3.49.0",
-        "@jest/globals": "latest",
-        "@types/inquirer": "^8.2.0",
-        "@types/jest": "latest",
+        "@aws-sdk/types": "latest",
+        "@tsconfig/node16": "latest",
+        "@types/inquirer": "latest",
         "@types/node": "latest",
         "@typescript-eslint/eslint-plugin": "latest",
-        "@typescript-eslint/experimental-utils": "latest",
+        "@typescript-eslint/utils": "latest",
         "@typescript-eslint/parser": "latest",
-        "@typescript-eslint/scope-manager": "latest",
-        "@typescript-eslint/type-utils": "latest",
-        "@typescript-eslint/typescript-estree": "latest",
         "eslint": "latest",
-        "jest": "latest",
-        "ts-jest": "latest",
-        "ts-node": "latest",
-        "tslib": "latest",
-        "typescript": "latest",
-        "typescript-eslint-language-service": "latest"
+        "typescript": "latest"
     },
     "exports": {
         ".": "./index.js"

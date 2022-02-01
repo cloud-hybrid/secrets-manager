@@ -1,19 +1,21 @@
 # `@cloud-technology/secrets-manager` #
 
-The more intuitive, user-friendly commandline application for AWS' Secrets-Manager.
+An intuitive & user-friendly CLI application for AWS' Secrets-Manager.
 
 ## Usage ##
 
-1. Incur a *programmatic* use-case for a stored secret.
-2. Create a **local** `*.json` file containing the secret's expected content.
+### Creating ###
+
+Usage Instructions for Creating a **New Secret** in *AWS Secrets-Manager*.
+
+1. Create an arbitrary `*.json` file containing the secret's expected content:
    ```json5
    // .secret.json
    {
        "Secret": "Value"
    }
    ```
-3. Install the package.
-   ```bash
-   npm install .
-   ```
-4. 
+2. Run `npx --yes @cloud-technology/secrets-manager create`
+   1. Provide the **Name**: `Organization/Environment/Application/Resource/Identifier`
+   2. Provide the **Description**: `An arbitrary secret ...`
+   3. Provide the *relative* or *full-system path* to the `*.json` file created in step 1: `.secret.json`
