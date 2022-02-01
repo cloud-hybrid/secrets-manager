@@ -39,3 +39,5 @@ cdktf.out/**
 *.zip
 
 tsconfig.tsbuildinfo
+
+!./index.js

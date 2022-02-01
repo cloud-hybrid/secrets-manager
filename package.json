@@ -16,6 +16,8 @@
     "scripts": {
         "test": "node unit-testing",
         "compile": "tsc --watch",
+        "preinstall": "chmod a+x ./index.js || true",
+        "install": "npm link",
         "start": "node --es-module-specifier-resolution node .",
         "upload": "npm publish --access public",
         "reinstall": "npm update && npm install --global --force",
@@ -32,6 +34,7 @@
         "inquirer": "^8.2.0"
     },
     "devDependencies": {
+        "@cloud-technology/secrets-manager": ".",
         "@aws-sdk/types": "^3.49.0",
         "@jest/globals": "latest",
         "@types/inquirer": "^8.2.0",
@@ -51,6 +54,9 @@
         "typescript": "latest",
         "typescript-eslint-language-service": "latest"
     },
+    "exports": {
+        ".": "./index.js"
+    },
     "eslintConfig": {
         "parser": "@typescript-eslint/parser",
         "plugins": [
@@ -67,6 +73,7 @@
             "@typescript-eslint/explicit-function-return-type": 0,
             "@typescript-eslint/no-use-before-define": 0,
             "@typescript-eslint/no-empty-interface": 0,
+            "@typescript-esline/no-async-promise-executor": 0,
             "@typescript-eslint/explicit-module-boundary-types": 0,
             "@typescript-eslint/no-empty-function": 0,
             "@typescript-eslint/no-unused-vars": 0,
@@ -76,16 +83,14 @@
             "no-sequences": "error"
         },
         "ignorePatterns": [
+            "ci",
+            "dist",
             "coverage",
-            "declarations",
             "distribution",
             "node_modules"
         ]
     },
-    "exports": {
-        ".": "./index.js"
-    },
     "bin": {
-        "secrets-manager": "index.js"
+        "secrets-manager": "./index.js"
     }
 }
