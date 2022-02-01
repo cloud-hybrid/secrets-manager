@@ -69,8 +69,6 @@
         "**/*.js"
     ],
     "include": [
-        "index.ts",
-        "**/*.ts",
-        "unit-testing/**/*.ts"
+        "**/*.ts"
     ]
 }
