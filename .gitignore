@@ -40,4 +40,6 @@ cdktf.out/**
 
 tsconfig.tsbuildinfo
 
+.secret.json
+
 !./index.js
