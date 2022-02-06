@@ -35,8 +35,8 @@ $.command( "search" )
     .description( "Choose a Secret from an Optionally Filtered List" )
     .helpOption( "-h, --help", "Display Help Information" )
     .requiredOption( "-n, --name <filter>", "Filter Search Results via Name" )
-    .requiredOption("-p, --profile <account>", "AWS Account Alias - Aliases Found in ~/.aws/credentials", "default")
     .option( "-s, --stage <version>", "Filter via Version", "AWSCURRENT" )
+    .requiredOption("-p, --profile <account>", "AWS Account Alias - Aliases Found in ~/.aws/credentials", "default")
     .action( (parameters: { name: string, stage: string, profile: string}) => {
         const module = Prompt.createPromptModule();
         Client.searchSecrets( "name", [ parameters?.name ?? undefined ], parameters.profile).then( async ($) => {
