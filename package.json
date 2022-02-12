@@ -1,7 +1,7 @@
 {
     "name": "@cloud-technology/secrets-manager",
     "private": false,
-    "version": "0.4.133",
+    "version": "0.5.135",
     "type": "module",
     "main": "index.js",
     "description": "AWS Secrets Manager CLI Tool & Interface",
@@ -25,7 +25,7 @@
     "dependencies": {
         "@aws-sdk/client-secrets-manager": "^3.49.0",
         "@aws-sdk/credential-providers": "^3.49.0",
-        "@cloud-technology/parameter": "^0.5.127",
+        "@cloud-technology/parameter": "^0.6.135",
         "commander": "^9.0.0",
         "inquirer": "^8.2.0"
     },
@@ -35,8 +35,8 @@
         "@types/inquirer": "latest",
         "@types/node": "latest",
         "@typescript-eslint/eslint-plugin": "latest",
-        "@typescript-eslint/utils": "latest",
         "@typescript-eslint/parser": "latest",
+        "@typescript-eslint/utils": "latest",
         "eslint": "latest",
         "typescript": "latest"
     },

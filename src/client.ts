@@ -26,9 +26,17 @@ class Client extends Credential {
         list: AWS.List
     };
 
-    /*** Given AWS-V3 Change(s), `await Client.instantiate()` must be called after constructor Instantiation */
+    /***
+     * Given AWS-V3 Change(s), `await Client.instantiate()` must be called after constructor Instantiation
+     *
+     * @param {string} profile
+     *
+     * @private
+     * @constructor
+     *
+     */
 
-    constructor(profile: string = "default") {
+    private constructor(profile: string = "default") {
         super(profile);
 
         this.profile = profile;
@@ -38,6 +46,7 @@ class Client extends Credential {
      * Populate the instance `$.service`, and return a callable, functional S3 API Client
      *
      * @returns {Promise<Types.Client>}
+     *
      */
 
     private async instantiate() {
@@ -68,8 +77,11 @@ class Client extends Credential {
      *
      * @param {string} name
      * @param {string} version
+     *
      * @returns {Promise<Secret>}
+     *
      */
+
     static async getSecret(name: string, version: string = "AWSCURRENT", profile: string = "default"): Promise<Secret> {
         const client = await Client.initialize(profile);
 
@@ -88,7 +100,9 @@ class Client extends Credential {
      * List all AWS Account Secret(s)
      *
      * @returns {Promise<Variadic[]>}
+     *
      */
+
     static async listSecrets(profile: string = "default"): Promise<Variadic[]> {
         const client = await Client.initialize(profile);
 
@@ -122,13 +136,15 @@ class Client extends Credential {
     }
 
     /***
-     *
      * Name Filter - Matches the beginning of secret names; case-sensitive
      *
      * @param {Filters} filter
      * @param {string | string[]} value
+     *
      * @returns {Promise<Variadic[]>}
+     *
      */
+
     static async searchSecrets(filter: Filters, value?: string | string[], profile: string = "default"): Promise<Variadic[]> {
         const client = await Client.initialize(profile);
 
@@ -183,14 +199,16 @@ class Client extends Credential {
      * @param {boolean} overwrite
      *
      * @returns {Promise<Secret>}
+     *
      */
+
     static async createSecret(parameter: Parameter, description: string, secret: string, overwrite: boolean = false, profile: string = "default"): Promise<Secret> {
         const client = await Client.initialize(profile);
 
         const organization = parameter.organization;
         const environment = parameter.environment;
         const application = parameter.application;
-        const resource = parameter.resource;
+        const service = parameter.service;
 
         const identifier = parameter.identifier;
 
@@ -214,7 +232,7 @@ class Client extends Credential {
                 },
                 {
                     Key: "Resource",
-                    Value: resource
+                    Value: service
                 },
                 {
                     Key: "Identifier",
@@ -237,7 +255,9 @@ class Client extends Credential {
      * @param {string} secret
      *
      * @returns {Promise<Secret>}
+     *
      */
+
     static async forceCreateSecret(parameter: Parameter, description: string, secret: string, profile: string = "default") {
         return await Client.createSecret(parameter, description, secret, true, profile);
     }
