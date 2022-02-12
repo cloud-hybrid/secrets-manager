@@ -1,7 +1,7 @@
 {
     "name": "@cloud-technology/secrets-manager",
     "private": false,
-    "version": "0.5.135",
+    "version": "0.6.136",
     "type": "module",
     "main": "index.js",
     "description": "AWS Secrets Manager CLI Tool & Interface",
