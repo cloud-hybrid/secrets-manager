@@ -17,12 +17,12 @@ const $ = new Command()
 
 $.command( "list" )
     .description( "List Account Secrets - Doesn't Include Secret Value(s)" )
-    .requiredOption("-p, --profile <account>", "AWS Account Alias - Aliases Found in ~/.aws/credentials", "default")
+    .requiredOption( "-p, --profile <account>", "AWS Account Alias - Aliases Found in ~/.aws/credentials", "default" )
     .option( "-v, --verbose", "Include Verbose Attribute(s)", false )
-    .action( (parameters: { name: string, verbose: boolean, profile: string }) => {
-        Client.listSecrets(parameters.profile).then( ($) => {
-            const data = $.map( (secret) => {
-                return (parameters.verbose) ? secret : secret.compact();
+    .action( ( parameters: { name: string, verbose: boolean, profile: string } ) => {
+        Client.listSecrets( parameters.profile ).then( ( $ ) => {
+            const data = $.map( ( secret ) => {
+                return ( parameters.verbose ) ? secret : secret.compact();
             } );
 
             console.log( data );
@@ -36,25 +36,25 @@ $.command( "search" )
     .helpOption( "-h, --help", "Display Help Information" )
     .requiredOption( "-n, --name <filter>", "Filter Search Results via Name" )
     .option( "-s, --stage <version>", "Filter via Version", "AWSCURRENT" )
-    .requiredOption("-p, --profile <account>", "AWS Account Alias - Aliases Found in ~/.aws/credentials", "default")
-    .action( (parameters: { name: string, stage: string, profile: string}) => {
+    .requiredOption( "-p, --profile <account>", "AWS Account Alias - Aliases Found in ~/.aws/credentials", "default" )
+    .action( ( parameters: { name: string, stage: string, profile: string } ) => {
         const module = Prompt.createPromptModule();
-        Client.searchSecrets( "name", [ parameters?.name ?? undefined ], parameters.profile).then( async ($) => {
-            const query = $.map( (secret) => {
+        Client.searchSecrets( "name", [ parameters?.name ?? undefined ], parameters.profile ).then( async ( $ ) => {
+            const query = $.map( ( secret ) => {
                 return secret.compact();
             } );
 
-            const data = query.sort(($, _) => {
-                return (String($.name).localeCompare(String(_.name)));
-            })
+            const data = query.sort( ( $, _ ) => {
+                return ( String( $.name ).localeCompare( String( _.name ) ) );
+            } );
 
-            const options: {name: string | undefined, value: any, extra: any}[] = data.map(($) => {
+            const options: { name: string | undefined, value: any, extra: any }[] = data.map( ( $ ) => {
                 return {
                     name: $.name,
                     value: $.name,
                     extra: { description: $.description }
-                }
-            });
+                };
+            } );
 
             const selection = await module( {
                 type: "list",
@@ -67,7 +67,7 @@ $.command( "search" )
             } );
 
             const secret = selection.secret;
-            return Client.getSecret( secret, parameters.stage, parameters.profile ).then( ($) => {
+            return Client.getSecret( secret, parameters.stage, parameters.profile ).then( ( $ ) => {
                 console.log( $.serialize() );
 
                 return $.serialize();
@@ -78,125 +78,129 @@ $.command( "search" )
 $.command( "create" )
     .description( "Create a New Secret" )
     .helpOption( "-h, --help", "Display Help Information" )
-    .option("-n, --name <value>", "The Secret's Name - Ex) IBM/Production/Audit-Service/Watson-AI/Credentials")
-    .option("-d, --description <value>", "Usage or Contextual Description")
-    .option("-s, --secret <value>", "Target Secret Value - File System Path")
-    .option("-l, --local", "Open File Path from Current Working Directory", false)
-    .option("-o, --overwrite", "Force Creation of Secret - Overwrites Existing Secret(s)", false)
-    .requiredOption("-p, --profile <account>", "AWS Account Alias - Aliases Found in ~/.aws/credentials", "default")
-    .action( (parameter: {name: string, description: string, secret: string, local: boolean, overwrite: boolean, profile: string}) => {
-        const module = Prompt.createPromptModule();
+    .option( "-n, --name <value>", "The Secret's Name - Ex) IBM/Production/Audit-Service/Watson-AI/Credentials" )
+    .option( "-d, --description <value>", "Usage or Contextual Description" )
+    .option( "-s, --secret <value>", "Target Secret Value - File System Path" )
+    .option( "-l, --local", "Open File Path from Current Working Directory", false )
+    .option( "-o, --overwrite", "Force Creation of Secret - Overwrites Existing Secret(s)", false )
+    .requiredOption( "-p, --profile <account>", "AWS Account Alias - Aliases Found in ~/.aws/credentials", "default" )
+    .action( ( parameter: {
+                name: string, description: string, secret: string, local: boolean, overwrite: boolean, profile: string
+            }
+        ) => {
+            const module = Prompt.createPromptModule();
 
-        const Name = async () => {
-            const input = await module( {
-                type: "input",
-                name: "name",
-                message: "Name" + ":"
-            } );
-            
-            return input.name;
-        }
-        
-        const Description = async () => {
-            const input = await module( {
-                type: "input",
-                name: "description",
-                message: "Description" + ":"
-            } );
+            const Name = async () => {
+                const input = await module( {
+                    type: "input",
+                    name: "name",
+                    message: "Name" + ":"
+                } );
 
-            return input.description;
-        }
-        
-        const Secret = async () => {
-            if (parameter.secret) {
-                const input = {file: parameter.secret};
-                const target = (FS.existsSync(input.file)) ? Path.relative(Process.cwd(), input.file) : null;
+                return input.name;
+            };
 
-                if (target === null) {
-                    (input.file === "") && process.exit(0);
+            const Description = async () => {
+                const input = await module( {
+                    type: "input",
+                    name: "description",
+                    message: "Description" + ":"
+                } );
 
-                    Process.stderr.write("[Error] File Couldn't be Found for Secret Creation" + "\n");
-                    process.exit(1);
-                } else {
-                    const buffer = FS.readFileSync(target, { encoding: "utf-8"});
-                    return FS.readFileSync(buffer, { encoding: "utf-8"});
-                }
-            } else {
-                if ( parameter.local ) {
-                    const path = Process.cwd();
-                    const contents = FS.readdirSync( Process.cwd(), { withFileTypes: false } );
-                    const files: string[] = [];
+                return input.description;
+            };
 
-                    contents.forEach( ($) => {
-                        (FS.statSync( $ ).isFile()) && files.push( String( $ ) );
-                    } );
-
-                    const input = await module( {
-                        type: "list",
-                        choices: files,
-                        message: "Select a File" + ":",
-                        askAnswered: true,
-                        pageSize: 20,
-                        name: "file",
-                        loop: false
-                    } );
-
-                    const target = Path.join( path, String( input.file ) );
-
-                    return FS.readFileSync( target, { encoding: "utf-8" } );
-                } else {
-                    const input = await module( {
-                        type: "input",
-                        name: "file",
-                        message: "Relative or Full System Path" + ":"
-                    } );
-
-                    const target = (FS.existsSync( input.file )) ? Path.relative( Process.cwd(), input.file ) : null;
+            const Secret = async () => {
+                if ( parameter.secret ) {
+                    const input = { file: parameter.secret };
+                    const target = ( FS.existsSync( input.file ) ) ? Path.relative( Process.cwd(), input.file ) : null;
 
                     if ( target === null ) {
-                        (input.file === "") && process.exit( 0 );
+                        ( input.file === "" ) && process.exit( 0 );
 
                         Process.stderr.write( "[Error] File Couldn't be Found for Secret Creation" + "\n" );
                         process.exit( 1 );
                     } else {
+                        const buffer = FS.readFileSync( target, { encoding: "utf-8" } );
+                        return FS.readFileSync( buffer, { encoding: "utf-8" } );
+                    }
+                } else {
+                    if ( parameter.local ) {
+                        const path = Process.cwd();
+                        const contents = FS.readdirSync( Process.cwd(), { withFileTypes: false } );
+                        const files: string[] = [];
+
+                        contents.forEach( ( $ ) => {
+                            ( FS.statSync( $ ).isFile() ) && files.push( String( $ ) );
+                        } );
+
+                        const input = await module( {
+                            type: "list",
+                            choices: files,
+                            message: "Select a File" + ":",
+                            askAnswered: true,
+                            pageSize: 20,
+                            name: "file",
+                            loop: false
+                        } );
+
+                        const target = Path.join( path, String( input.file ) );
+
                         return FS.readFileSync( target, { encoding: "utf-8" } );
+                    } else {
+                        const input = await module( {
+                            type: "input",
+                            name: "file",
+                            message: "Relative or Full System Path" + ":"
+                        } );
+
+                        const target = ( FS.existsSync( input.file ) ) ? Path.relative( Process.cwd(), input.file ) : null;
+
+                        if ( target === null ) {
+                            ( input.file === "" ) && process.exit( 0 );
+
+                            Process.stderr.write( "[Error] File Couldn't be Found for Secret Creation" + "\n" );
+                            process.exit( 1 );
+                        } else {
+                            return FS.readFileSync( target, { encoding: "utf-8" } );
+                        }
                     }
                 }
-            }
-        }
-
-        const evaluate = async () => {
-            const name = parameter?.name ?? await Name();
-            const description = parameter?.description ?? await Description();
-            const secret = await Secret();
-
-            return {
-                name, description, secret
             };
-        }
 
-        evaluate().then(($) => {
-            const name = ($.name.split("/").length === 4)
-                ? Parameter.create($.name, "Default")
-                : Parameter.create($.name, "Identifier");
+            const evaluate = async () => {
+                const name = parameter?.name ?? await Name();
+                const description = parameter?.description ?? await Description();
+                const secret = await Secret();
 
-            Client.createSecret(name, $.description, $.secret, parameter.overwrite, parameter.profile).then(($) => {
-                const result = {
-                    ARN: $.id,
-                    Name: $.name,
-                    Version: $.version
+                return {
+                    name, description, secret
                 };
+            };
 
-                console.log(result);
+            evaluate().then( ( $ ) => {
+                const name = ( $.name.split( "/" ).length === 4 )
+                    ? Parameter.create( $.name, "Default" )
+                    : Parameter.create( $.name, "Identifier" );
 
-                return result;
-            });
-        });
-    } );
+                Client.createSecret( name, $.description, $.secret, parameter.overwrite, parameter.profile ).then( ( $ ) => {
+                    const result = {
+                        ARN: $.id,
+                        Name: $.name,
+                        Version: $.version
+                    };
 
-$.command("help").description( "Display Help Information" ).action(() => {
+                    console.log( result );
+
+                    return result;
+                } );
+            } );
+        }
+    );
+
+$.command( "help" ).description( "Display Help Information" ).action( () => {
     $.help();
-});
+} );
 
 const Parser = $;
 
