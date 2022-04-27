@@ -1,7 +1,7 @@
 {
     "name": "@cloud-technology/secrets-manager",
     "private": false,
-    "version": "0.6.136",
+    "version": "0.6.137",
     "type": "module",
     "main": "index.js",
     "description": "AWS Secrets Manager CLI Tool & Interface",
@@ -15,9 +15,8 @@
     "author": "Jacob B. Sanders",
     "scripts": {
         "compile": "tsc --watch",
-        "preinstall": "chmod a+x ./index.js || true",
-        "install": "npm link",
-        "start": "node --es-module-specifier-resolution node .",
+        "prestart": "tsc",
+        "start": "ts-node .",
         "upload": "npm publish --access public",
         "reinstall": "npm update && npm install --global --force",
         "prepublishOnly": "npm install --silent && tsc"
@@ -27,7 +26,8 @@
         "@aws-sdk/credential-providers": "^3.49.0",
         "@cloud-technology/parameter": "^0.6.135",
         "commander": "^9.0.0",
-        "inquirer": "^8.2.0"
+        "inquirer": "^8.2.0",
+        "ts-node": "^10.7.0"
     },
     "devDependencies": {
         "@aws-sdk/types": "latest",

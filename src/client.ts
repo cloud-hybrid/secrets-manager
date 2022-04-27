@@ -65,10 +65,10 @@ class Client extends Credential {
 
         return this;
     }
-    
+
     private static async initialize(profile: string) {
         const client = new Client(profile);
-        
+
         return await client.instantiate();
     }
 
