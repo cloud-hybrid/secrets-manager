@@ -19,3 +19,10 @@ An intuitive & user-friendly CLI application for AWS' Secrets-Manager.
    2. Provide the **Description**: `A secret's description ...`
    3. Provide the Secret File's **Path**: `.secret.json`
       - Either a relative or absolute file-system path
+
+## Task-Board ##
+
+- [ ] When searching for a secret, if a TTY is not present, but only a single secret was found, 
+simply output the results without forcing the user to accept the list-item.
+   - [ ] Add a flag that would simulate a no-TTY environment (`--ci` | `--no-ci`).
+- [ ] Prompt the User to select from a drop-down (`File` | `Prompt`) for the secrets generation during the `create` command.
