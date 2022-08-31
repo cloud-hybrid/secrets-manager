@@ -26,3 +26,4 @@ An intuitive & user-friendly CLI application for AWS' Secrets-Manager.
 simply output the results without forcing the user to accept the list-item.
    - [ ] Add a flag that would simulate a no-TTY environment (`--ci` | `--no-ci`).
 - [ ] Prompt the User to select from a drop-down (`File` | `Prompt`) for the secrets generation during the `create` command.
+- [ ] Extend `Utility.inspect` to include a `Infinite` output result when piping the output from the `list` command to stdout.
